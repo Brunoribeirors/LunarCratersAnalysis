@@ -195,6 +195,116 @@ print(datetime.now() - start)
 
 craters_diam['CLUSTER_NP'] = craters_np[:, 3]
 
+########################################################################
+#Usando Dask Dataframe
+import dask.dataframe as dd
+craters_dd = dd.read_csv('/home/brunomr/Documents/TCC/lunar_crater_database_robbins_2018_bundle/data/lunar_crater_database_robbins_2018.csv')
+print(craters_dd.head())
+
+craters_diam_dd = craters_dd.sort_values('DIAM_CIRC_IMG', ascending=False)
+craters_diam_dd.head()
+craters_diam_dd.reset_index(drop=True)#, inplace=True)
+clusters = [0] * len(craters_dd)
+
+from math import radians, cos, sin, asin, sqrt
+def distance(lat1, lat2, lon1, lon2):
+    lat1 = radians(lat1)
+    lat2 = radians(lat2)
+    lon1 = radians(lon1)
+    lon2 = radians(lon2)
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2*asin(sqrt(a))
+    #r = 6371
+    r = 1737
+    return(c * r)
+#dist = distance(0, 0, 0, 1)
+
+from datetime import datetime
+start = datetime.now()
+cluster = 1
+cont = 0
+for crater in craters_diam_dd.iterrows():  
+    start2 = datetime.now()
+    if clusters[cont] == 0:
+        clusters[cont] = cluster
+        lat1 = crater[1][1]
+        lon1 = crater[1][2]
+        diam = crater[1][5]
+        for j in range(cont+1, len(craters_diam_dd)):
+            if clusters[j] == 0:
+                crater2 = next(craters_diam_dd.iterrows())[j]
+                lat2 = craters_diam_dd[j]
+                lon2 = craters_diam_dd.loc[j, 'LON_CIRC_IMG']
+                #dist = sqrt((lat - lat2) ** 2 + (lon - lon2) ** 2)
+                dist = distance(lat1, lat2, lon1, lon2)
+                #if dist*30.32335 <= diam/2:
+                if dist <= diam/2:
+                    clusters[j] = cluster
+        cluster += 1
+    print(datetime.now() - start2)
+print(datetime.now() - start)
+
+craters_diam_dd.dtypes
+len(craters_diam_dd)
+craters_diam_dd.head()
+craters_diam_dd.shape()
+craters_diam_dd.loc[12, 'CLUSTER']
+row = next(craters_diam_dd.iterrows())[1]  
+row  
+
+##############################################################################
+import dask.dataframe as dd
+craters_dd = dd.read_csv('/home/brunomr/Documents/TCC/lunar_crater_database_robbins_2018_bundle/data/lunar_crater_database_robbins_2018.csv')
+print(craters_dd.head())
+craters_dd
+craters_dd.partitions[1].compute()
+craters_dd.map_partitions(len).compute()
+
+craters_dd = dd.from_pandas(craters, npartitions=4)
+crater = next(craters_dd.iterrows())
+crater
+
+#conda install -c conda-forge fiona
+import fiona
+import numpy as np
+import matplotlib.path as mplPath
+
+craters_dd['FU1'] = 0
+craters_dd['FU2'] = 0
+craters_dd['FUnit'] = 0
+FU1 = list()
+FU2 = list()
+FUnit = list()
+
+from datetime import datetime
+start = datetime.now()
+for crater in craters_dd.iterrows():  
+    start2 = datetime.now()
+    lat = crater[1][1]
+    lat = lat * 30323.34
+    lon = crater[1][2] - 180
+    lon = lon * 30323.34
+    shape = fiona.open('/home/brunomr/Documents/TCC/Unified_Geologic_Map_of_the_Moon_GIS_v2/Lunar_GIS/Shapefiles/GeoUnits.shp')
+    for j in range(len(shape)):
+        shp = shape.next()
+        geo = shp['geometry']['coordinates']
+        for k in range(len(geo)):
+            array = np.array(geo[k])
+            size = len(geo[k])
+            array = array.reshape(size,2)
+            poly_path = mplPath.Path(np.array(array))
+            point = (lon, lat)
+            if poly_path.contains_point(point) == True:
+                FU1.append(shp['properties']['FIRST_Un_1'])
+                FU2.append(shp['properties']['FIRST_Un_2'])
+                FUnit.append(shp['properties']['FIRST_Unit'])
+    print(datetime.now() - start2)
+    #if i%1000 == 0:
+        #craters_diam.to_csv(r'/home/brunomr/Documents/TCC/lunar_crater_database_robbins_2018_bundle/data/lunar_craters_clusters_part2.csv', index=False)
+print(datetime.now() - start)
+
 ##############################################################################
 # Arquivo completo Cluster/Region
 craters_diam_c = pd.read_csv(
