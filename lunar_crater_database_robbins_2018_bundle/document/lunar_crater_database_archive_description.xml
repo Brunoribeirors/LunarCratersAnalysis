@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="http://pds.nasa.gov/pds4/pds/v1/PDS4_PDS_1B00.sch" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+
+<Product_Document xmlns="http://pds.nasa.gov/pds4/pds/v1"
+ xmlns:pds="http://pds.nasa.gov/pds4/pds/v1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://pds.nasa.gov/pds4/pds/v1 http://pds.nasa.gov/pds4/pds/v1/PDS4_PDS_1B00.xsd">
+    <Identification_Area>
+        <logical_identifier>urn:nasa:pds:mars_cave_catalog:document:lunar_crater_database_archive_description</logical_identifier>
+        <version_id>1.0</version_id>
+        <title>lunar crater database archive description</title>
+        <information_model_version>1.11.0.0</information_model_version>
+        <product_class>Product_Document</product_class>
+        <Citation_Information>
+            <publication_year>2019</publication_year>
+            <description>Description of the lunar crater database</description>
+        </Citation_Information>
+    </Identification_Area>
+    <Document>
+        <publication_date>2019-03-26</publication_date>
+        <description>lunar crater database archive description</description>
+        <Document_Edition>
+            <edition_name>lunar crater database archive description</edition_name>
+            <language>English</language>
+            <files>1</files>
+            <Document_File>
+                <file_name>lunar_crater_database_archive_description.pdf</file_name>
+                <document_standard_id>PDF/A</document_standard_id>
+            </Document_File>
+        </Document_Edition>
+    </Document>
+</Product_Document>
